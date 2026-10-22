@@ -1,6 +1,7 @@
-// servicios/api.ts — RECURSO: se copia del código base (es el de la Práctica 14).
+// servicios/api.ts
 // UNA instancia de Axios para toda la app. Nadie más importa axios.
 import axios from 'axios';
+import { leerSesion } from '../sesion/almacen.ts';
 
 // Donde corre gimnasio-backend. VITE_API_URL sólo se usa al desplegar (tutorial de la Semana 10).
 export const URL_API = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
@@ -8,6 +9,16 @@ export const URL_API = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 export const api = axios.create({
   baseURL: URL_API,
   timeout: 5000, // si en 5 s no responde, es error
+});
+
+// Práctica 16: interceptor de petición. Corre ANTES de cada petición y le agrega
+// el encabezado Authorization con el token guardado (si hay sesión).
+api.interceptors.request.use((config) => {
+  const sesion = leerSesion();
+  if (sesion) {
+    config.headers.Authorization = `Bearer ${sesion.token}`;
+  }
+  return config;
 });
 
 // El sobre de la Práctica 9B: toda respuesta exitosa llega como { data, meta }.
