@@ -1,25 +1,20 @@
 -Ejercicio 1
 
-1. ¿Porqué el 404 sí tiene encabezado y pie?
-   Porque la ruta "*" es hija de la ruta de layout. El "<Layout>" siempre se pinta y el 404 solo
-   ocupa su "<Outlet />".
+1. ¿Porqué un contexto y no props?
+   La sesión la necesitan componentes en distintos niveles. Con props habría que pasarla por
+   todos los componentes intermedios, aunque no la usen. Con contexto, quien la necesita la
+   lee directo con useSesion().
 
-2. ¿Qué cambia en la pestaña Red si usas "<a href>" en ligar de "Link"?
-   Con "<a href>" el navegador pide de nuevo el documento ("index.html") y vuelve a descargar el
-   JS y el CSS: se recarga toda la página. Con "Link" no hay petición de documento; solo se ve
-   la petición a la API y la página no se recarga.
+2. ¿Qué pasa si se usa fuera del proveedor?
+   useContext devuelve el valor por defecto, que es null. El hook detecta eso y lanza un
+   error ("useSesion se usó fuera de <SesionProveedor>") en vez de fallar después con un
+   Cannot read properties of null.
 
 -Ejercicio 2
 
-1. ¿En qué tipo de dato llega el id y qué pasa si no lo conviertes?
-   Llega como "string" (o "undefined"), porque "useParams" siempre devuelve texto. Sin
-   convertirlo, TypeScrpt marca error al pasarlo a "traerClase(id: number)", y las comparaciones
-   con números ("id === 1") daría "false".
-
-2. ¿Qué pasa al ir de "/clases/1" a "/clases/2" si el id no está en las dependencias del efecto?
-   React reutiliza el mismo componente (es la misma ruta, solo cambia el parámetro), así que el
-   efecto, que solo corre al montar, no se vuelve a ejecutar. La URL dice "/clases/2" pero la
-   pantalla sigue mostrando la clase 1.
+1. ¿Dónde se guarda el token y qué riesgo tiene?
+   En localStorage junto con el usuario. El riesgo es XSS: cualquier script que se ejecute
+   en la página puede leerlo con localStorage.getItem y robar la sesión.
 
 
 # React + TypeScript + Vite
