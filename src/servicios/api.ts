@@ -21,6 +21,25 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Práctica 17: el interceptor vive fuera de React, así que SesionProveedor
+// le registra cómo cerrar la sesión.
+let alVencerSesion: (() => void) | null = null;
+export function registrarCierreDeSesion(fn: (() => void) | null) {
+  alVencerSesion = fn;
+}
+
+// Práctica 17: interceptor de respuesta. Si la API responde 401, la sesión ya no sirve.
+api.interceptors.response.use(
+  (respuesta) => respuesta,
+  (error) => {
+    // En /auth/login un 401 es "contraseña equivocada", no sesión vencida
+    if (axios.isAxiosError(error) && error.response?.status === 401 && error.config?.url !== '/auth/login') {
+      alVencerSesion?.();
+    }
+    return Promise.reject(error); // el error sigue su camino para que la página muestre el aviso
+  },
+);
+
 // El sobre de la Práctica 9B: toda respuesta exitosa llega como { data, meta }.
 export interface Sobre<T> {
   data: T;

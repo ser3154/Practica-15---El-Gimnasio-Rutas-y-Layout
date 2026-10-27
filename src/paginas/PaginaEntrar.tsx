@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router';
-import { useSesion } from '../sesion/contexto.ts';
+import { Link, useLocation, useNavigate } from 'react-router';import { useSesion } from '../sesion/contexto.ts';
 import { login } from '../servicios/gimnasio.ts';
 import { mensajeDeError } from '../servicios/api.ts';
 
@@ -8,6 +7,8 @@ export function PaginaEntrar() {
   const { iniciarSesion } = useSesion();
   const navigate = useNavigate();
 
+  const ubicacion = useLocation();
+  const destino = (ubicacion.state as { desde?: string } | null)?.desde ?? '/clases';
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +21,7 @@ export function PaginaEntrar() {
     try {
       const sesion = await login(correo, password);
       iniciarSesion(sesion);
-      navigate('/clases', { replace: true });
+      navigate(destino, { replace: true });
     } catch (err) {
       setError(mensajeDeError(err, 'No se pudo conectar con el gimnasio.'));
       setEnviando(false);
