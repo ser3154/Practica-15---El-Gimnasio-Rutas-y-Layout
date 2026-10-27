@@ -1,26 +1,19 @@
--Ejercicio 1
+1. ¿La ruta protegida hace segura la aplicación?¡Qué protege los datos?
+   No, solo oculta páginas en la interfaz. El código del frontend corre en el navegador del
+   usuario y se puede modificar (basta un token falso en localStorage para la que la ruta lo
+   deje pasar). Lo que protege los datos es el backend: JwtAuthGuard y valida la firma y la
+   vigencia del token en cada petición y responde 401 si no es válido. Por eso el curl sin
+   token da 401.
 
-1. ¿Porqué el 404 sí tiene encabezado y pie?
-   Porque la ruta "*" es hija de la ruta de layout. El "<Layout>" siempre se pinta y el 404 solo
-   ocupa su "<Outlet />".
+2. ¿Por qué no se manda el miembroId?
+   Porque el cliente no es de fiar: si lo mandara, cualquiera podría cambiarlo e inscribir a
+   otra otra persona. El backend lo saca del token, que está firmado y no se puede alterar. Así
+   solo te inscribes a ti mismo. 
 
-2. ¿Qué cambia en la pestaña Red si usas "<a href>" en ligar de "Link"?
-   Con "<a href>" el navegador pide de nuevo el documento ("index.html") y vuelve a descargar el
-   JS y el CSS: se recarga toda la página. Con "Link" no hay petición de documento; solo se ve
-   la petición a la API y la página no se recarga.
-
--Ejercicio 2
-
-1. ¿En qué tipo de dato llega el id y qué pasa si no lo conviertes?
-   Llega como "string" (o "undefined"), porque "useParams" siempre devuelve texto. Sin
-   convertirlo, TypeScrpt marca error al pasarlo a "traerClase(id: number)", y las comparaciones
-   con números ("id === 1") daría "false".
-
-2. ¿Qué pasa al ir de "/clases/1" a "/clases/2" si el id no está en las dependencias del efecto?
-   React reutiliza el mismo componente (es la misma ruta, solo cambia el parámetro), así que el
-   efecto, que solo corre al montar, no se vuelve a ejecutar. La URL dice "/clases/2" pero la
-   pantalla sigue mostrando la clase 1.
-
+3. ¿Diferencia entre 401 y 403?
+   401: el servidor no sabe quién eres (no mando token, venció o es falso). La solución es
+   volver a iniciar sesión, por eso el interceptor cierra la sesión. 403: sí sabe quién eres,
+   pero tu cuenta no tiene permiso. La sesión sigue y solo se muestra el mensaje.
 
 # React + TypeScript + Vite
 
