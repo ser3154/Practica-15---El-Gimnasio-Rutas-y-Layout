@@ -128,3 +128,22 @@ a { color: var(--cian); }
 /* ---------- <NoEncontrado> y listas vacías ---------- */
 .vacio { padding: 3.5rem 1rem; text-align: center; }
 .vacio__codigo { font-size: 3.4rem; font-weight: 800; line-height: 1; color: var(--linea); }
+
+.barra__contador {
+  display: inline-block;
+  min-width: 1.4em;
+  margin-left: 0.4em;
+  padding: 0 0.4em;
+  border-radius: 999px;
+  background: var(--color-primario, #e11d48);
+  color: #fff;
+  font-size: 0.8em;
+  font-weight: 700;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.horario__inscrito {
+  color: #15803d;
+  font-weight: 700;
+}

@@ -2,10 +2,10 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { ContextoSesion } from './contexto.ts';
 import { borrarSesion, guardarSesion, leerSesion } from './almacen.ts';
 import { registrarCierreDeSesion } from '../servicios/api.ts';
+import { useInscripciones } from '../almacenes/inscripciones.ts';
 import type { Sesion } from '../tipos.ts';
 
 export function SesionProveedor({ children }: { children: ReactNode }) {
-  // Se lee localStorage una sola vez, al montar: así la sesión sobrevive al recargar.
   const [sesion, setSesion] = useState<Sesion | null>(() => leerSesion());
 
   function iniciarSesion(nueva: Sesion) {
@@ -26,6 +26,17 @@ export function SesionProveedor({ children }: { children: ReactNode }) {
     });
     return () => registrarCierreDeSesion(null);
   }, []);
+
+  // Práctica 18: hay sesión → se llena el store; no hay → se vacía.
+  const token = sesion?.token;
+  useEffect(() => {
+    const { cargar, vaciar } = useInscripciones.getState();
+    if (token) {
+      void cargar();
+    } else {
+      vaciar();
+    }
+  }, [token]);
 
   return (
     <ContextoSesion.Provider value={{ sesion, iniciarSesion, cerrarSesion }}>

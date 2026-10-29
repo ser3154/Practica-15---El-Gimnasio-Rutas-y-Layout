@@ -1,14 +1,20 @@
 import { Link } from 'react-router';
-import { useMisInscripciones } from '../hooks/useMisInscripciones.ts';
+import { useInscripciones } from '../almacenes/inscripciones.ts';
 import { urlImagen } from '../servicios/api.ts';
 import { Cargando } from '../componentes/Cargando.tsx';
 import { MensajeError } from '../componentes/MensajeError.tsx';
 
 export function PaginaMisInscripciones() {
-  const { inscripciones, cargando, error, reintentar } = useMisInscripciones();
+  // Ya no pide datos: lee lo que el store tiene.
+  const inscripciones = useInscripciones((s) => s.inscripciones);
+  const cargando = useInscripciones((s) => s.cargando);
+  const cargado = useInscripciones((s) => s.cargado);
+  const error = useInscripciones((s) => s.error);
+  const cargar = useInscripciones((s) => s.cargar);
 
-  if (cargando) return <Cargando />;
-  if (error) return <MensajeError mensaje={error} onReintentar={reintentar} />;
+  if (error) return <MensajeError mensaje={error} onReintentar={cargar} />;
+  if (cargando && !cargado) return <Cargando />;
+  if (!cargado) return <Cargando />;
 
   return (
     <>
@@ -24,7 +30,7 @@ export function PaginaMisInscripciones() {
       <ul className="inscripciones">
         {inscripciones.map((i) => (
           <li className="inscripcion" key={i.id}>
-            <img className="inscripcion__imagen" src={urlImagen(i.clase.imagen)} alt="" />
+            <img className="inscripcion__imagen" src={urlImagen(i.clase.imagen)} alt="" loading="lazy" />
             <div>
               <Link to={`/clases/${i.clase.id}`} className="inscripcion__clase">
                 {i.clase.nombre}

@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { useClase } from '../hooks/useClase.ts';
 import { useSesion } from '../sesion/contexto.ts';
+import { useInscripciones } from '../almacenes/inscripciones.ts';
 import { inscribirse } from '../servicios/gimnasio.ts';
 import { mensajeDeError, urlImagen } from '../servicios/api.ts';
 import { Cargando } from '../componentes/Cargando.tsx';
@@ -13,12 +14,20 @@ export function PaginaClase() {
   const { sesion } = useSesion();
   const navigate = useNavigate();
 
+  const inscripciones = useInscripciones((s) => s.inscripciones);
+  const cargarInscripciones = useInscripciones((s) => s.cargar);
+
+  // Los ids de horario en los que ya estoy inscrito
+  const horariosInscritos = useMemo(
+    () => new Set(inscripciones.map((i) => i.horario.id)),
+    [inscripciones],
+  );
+
   const [aviso, setAviso] = useState<{ tipo: 'exito' | 'error'; texto: string } | null>(null);
   const [inscribiendo, setInscribiendo] = useState<number | null>(null);
 
   async function alInscribirme(horarioId: number) {
     if (!sesion) {
-      // Sin sesión: a /entrar, y al entrar regresa a esta clase
       navigate('/entrar', { state: { desde: `/clases/${id}` } });
       return;
     }
@@ -27,9 +36,9 @@ export function PaginaClase() {
     try {
       await inscribirse(horarioId);
       setAviso({ tipo: 'exito', texto: '¡Listo! Quedaste inscrito.' });
-      reintentar(); // vuelve a pedir la clase: los lugares disponibles se actualizan
+      reintentar();                 // actualiza los lugares disponibles
+      await cargarInscripciones();  // actualiza el store (contador y marcas)
     } catch (e) {
-      // 409 (regla) y 403 (cuenta no es de un miembro): se muestra el message de la API
       setAviso({ tipo: 'error', texto: mensajeDeError(e, 'No se pudo completar la inscripción.') });
     } finally {
       setInscribiendo(null);
@@ -64,7 +73,9 @@ export function PaginaClase() {
                     {h.entrenador} · {h.disponibles} de {h.cupoMaximo} lugares
                   </div>
                 </div>
-                {h.disponibles === 0 ? (
+                {horariosInscritos.has(h.id) ? (
+                  <span className="horario__inscrito">✓ Inscrito</span>
+                ) : h.disponibles === 0 ? (
                   <span className="horario__lleno">Lleno</span>
                 ) : (
                   <button

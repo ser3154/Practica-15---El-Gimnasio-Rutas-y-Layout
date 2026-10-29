@@ -1,8 +1,9 @@
-// <Layout> — RECURSO: el marco que comparten todas las páginas.
-// Es el mismo <Layout> de la tienda, con una diferencia: en lugar de
-// {children} lleva <Outlet />. Outlet es el HUECO donde React Router pinta
-// la ruta hija que coincide con la URL.
+// <Layout> — el marco que comparten todas las páginas.
+// El <Suspense> va DENTRO del layout: mientras baja el archivo de la página,
+// el encabezado y el pie se quedan en pantalla y solo el hueco muestra "Cargando…".
+import { Suspense } from 'react';
 import { Outlet } from 'react-router';
+import { Cargando } from './Cargando.tsx';
 import { Encabezado } from './Encabezado.tsx';
 import { PiePagina } from './PiePagina.tsx';
 
@@ -11,7 +12,9 @@ export function Layout() {
     <div className="disposicion">
       <Encabezado />
       <main className="disposicion__contenido">
-        <Outlet />
+        <Suspense fallback={<Cargando />}>
+          <Outlet />
+        </Suspense>
       </main>
       <PiePagina />
     </div>

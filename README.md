@@ -1,25 +1,26 @@
 -Ejercicio 1
 
-1. ¿Porqué el 404 sí tiene encabezado y pie?
-   Porque la ruta "*" es hija de la ruta de layout. El "<Layout>" siempre se pinta y el 404 solo
-   ocupa su "<Outlet />".
+1. ¿Cuánto se ahorró y por qué el ahorro es pequeño en esta aplicación?
+El archivo principal bajó de 322.27 kB a 314.99 kB, un ahorro de unos 7.3 kB (de 104.21 kB a 102.53 kB con gzip, unos 1.7 kB). Es pequeño porque la mayor parte del peso no es código de las páginas, sino las librerías que usa toda la aplicación, y esas siguen en el archivo principal porque se necesitan desde la primera pantalla. Cada página, por sí sola, pesa entre 1.5 y 2.3 kB, así que al separarlas
+solo se saca del archivo principal una fracción mínima. Con loading="lazy" en las imágenes
+el ahorro también es mínimo: son pocas y ligeras, y el catálogo es una rejilla corta, por
+lo que casi todas las imágenes ya quedan dentro de la pantalla y se descargan de todos
+modos.
 
-2. ¿Qué cambia en la pestaña Red si usas "<a href>" en ligar de "Link"?
-   Con "<a href>" el navegador pide de nuevo el documento ("index.html") y vuelve a descargar el
-   JS y el CSS: se recarga toda la página. Con "Link" no hay petición de documento; solo se ve
-   la petición a la API y la página no se recarga.
+2. ¿Por qué falla la API si el preview corre en el puerto 4173?
+Por CORS. El origen de una página se compone de esquema, host y puerto, así que http://localhost:4173 y http://localhost:5173 son orígenes distintos. gimnasio-backend solo autoriza el origen http://localhost:5173 en sus encabezados CORS. Cuando la página corre en el 4173, el servidor sí recibe la petición, pero el navegador bloquea la respuesta porque su origen no está en la lista permitida, y en la consola aparece el error "blocked by CORS policy".
 
 -Ejercicio 2
 
-1. ¿En qué tipo de dato llega el id y qué pasa si no lo conviertes?
-   Llega como "string" (o "undefined"), porque "useParams" siempre devuelve texto. Sin
-   convertirlo, TypeScrpt marca error al pasarlo a "traerClase(id: number)", y las comparaciones
-   con números ("id === 1") daría "false".
+1. ¿Cuándo conviene un contexto y cuándo un store?
+Un contexto conviene para valores que cambian poco y que casi todo el árbol necesita, como
+la sesión, el tema o el idioma. Es parte de React, no requiere instalar nada y encaja bien
+con datos "de ambiente". Su desventaja es que cuando el valor cambia, todos los
+componentes que consumen ese contexto se vuelven a renderizar, aunque solo usen una parte
+del valor.
 
-2. ¿Qué pasa al ir de "/clases/1" a "/clases/2" si el id no está en las dependencias del efecto?
-   React reutiliza el mismo componente (es la misma ruta, solo cambia el parámetro), así que el
-   efecto, que solo corre al montar, no se vuelve a ejecutar. La URL dice "/clases/2" pero la
-   pantalla sigue mostrando la clase 1.
+Un store como Zustand conviene para estado que cambia seguido y que se comparte entre
+varias páginas, como las inscripciones.
 
 
 # React + TypeScript + Vite
